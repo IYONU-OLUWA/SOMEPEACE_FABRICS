@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>SOMEPEACE FABRICS | Admin</title><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@500;600;700&display=swap" rel="stylesheet"><link rel="stylesheet" href="admin.css"></head>
+<body>
+<header class="admin-header"><a class="logo" href="index.html"><span class="logo-symbol">S</span><span><b>SOMEPEACE</b><small>FABRICS</small></span></a><div><a href="index.html">View site ↗</a><button id="logoutBtn" class="logout hidden">Log out</button></div></header>
+<main class="admin-main">
+<section id="loginPanel" class="panel login-panel"><p class="kicker">PRIVATE AREA</p><h1>Admin Login</h1><p>Sign in to manage the SOMEPEACE FABRICS collection.</p><form id="loginForm"><label>Email<input id="email" type="email" required autocomplete="username"></label><label>Password<input id="password" type="password" required autocomplete="current-password"></label><button class="primary" type="submit">Sign in</button><p id="loginMessage" class="message"></p></form></section>
+
+<section id="dashboard" class="hidden"><div class="dashboard-head"><div><p class="kicker">COLLECTION MANAGER</p><h1>Your Fabrics</h1><p>Add, edit or remove products. The public collection automatically rearranges as it grows.</p></div><button id="addBtn" class="primary">+ Add fabric</button></div>
+<div id="status" class="message"></div><div id="productList" class="admin-grid"></div></section>
+
+<div id="modal" class="modal hidden"><div class="modal-card"><button id="closeModal" class="close" aria-label="Close">×</button><p class="kicker">FABRIC DETAILS</p><h2 id="modalTitle">Add Fabric</h2>
+<form id="productForm"><input id="productId" type="hidden"><label>Fabric name<input id="name" required maxlength="100"></label>
+<label>Category<select id="category"><option>Lace</option><option>Ankara</option><option>Native Wears</option><option>Fabrics</option></select></label>
+<label>Description<textarea id="description" rows="4" maxlength="300"></textarea></label>
+<label>Badge <input id="badge" maxlength="30" placeholder="NEW, FEATURED, etc."></label>
+<label>Fabric image<input id="image" type="file" accept="image/*"></label>
+<div id="preview" class="preview"></div><button class="primary" type="submit">Save fabric</button><p id="formMessage" class="message"></p></form></div></div>
+</main>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="supabase-config.js"></script><script src="admin.js"></script>
+</body></html>
