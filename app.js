@@ -1,11 +1,13 @@
-const { createClient } = window.supabase;
-const supabase = createClient(window.SOMEPEACE_SUPABASE_URL, window.SOMEPEACE_SUPABASE_ANON_KEY);
+const sb = window.supabase.createClient(
+    window.SOMEPEACE_SUPABASE_URL,
+    window.SOMEPEACE_SUPABASE_ANON_KEY
+);
 
 const fallbackProducts = [
  {id:"local-1",name:"Rossberry Platinum",category:"Ankara",description:"Bold circular pattern with rich red, black and white tones.",badge:"FEATURED",image_url:"assets/somepeace-ankara-rossberry.jpg"},
  {id:"local-2",name:"Textured Collection",category:"Fabrics",description:"Soft-looking textured fabrics available in beautiful colours.",badge:"COLOURS",image_url:"assets/somepeace-fabric-1.jpg"},
  {id:"local-3",name:"Statement Prints",category:"Embroidered",description:"Decorative patterns made to stand out at special occasions.",badge:"DETAILS",image_url:"assets/somepeace-fabric-2.webp"},
- {id:"local-4",name:"More Fabrics",category:"Fabrics",description:"More product photos will be added as the collection expands.",badge:"COMING SOON",image_url:"assets/somepeace-promo.png"}
+ {id:"local-4",name:"More Fabrics",category:"Fabrics",description:"More product photos will be added as the collection expands.",badge:"COMING SOON",image_url:"assets/somepeace-promo.jpg"}
 ];
 
 const grid = document.getElementById("products-grid");
@@ -22,7 +24,7 @@ function escapeHtml(v=""){return String(v).replace(/[&<>"']/g,m=>({"&":"&amp;","
 async function loadProducts(){
  try{
    if(window.SOMEPEACE_SUPABASE_URL.startsWith("YOUR_")) throw new Error("not configured");
-   const {data,error}=await supabase.from("fabrics").select("*").order("sort_order",{ascending:true}).order("created_at",{ascending:false});
+   const {data,error}=await sb.from("fabrics").select("*").order("sort_order",{ascending:true}).order("created_at",{ascending:false});
    if(error) throw error;
    grid.innerHTML = data?.length ? data.map(card).join("") : `<div class="empty">No fabrics have been added yet.</div>`;
  }catch(e){
