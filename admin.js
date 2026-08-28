@@ -2,6 +2,7 @@ const sb = window.supabase.createClient(
     window.SOMEPEACE_SUPABASE_URL,
     window.SOMEPEACE_SUPABASE_ANON_KEY
 );
+const ADMIN_USER_ID = "7d8f5687-0abd-4778-9bc3-3d642785938b";
 const loginPanel=document.getElementById("loginPanel"),dashboard=document.getElementById("dashboard"),logoutBtn=document.getElementById("logoutBtn"),modal=document.getElementById("modal");
 const list=document.getElementById("productList"),status=document.getElementById("status"),form=document.getElementById("productForm"),preview=document.getElementById("preview");
 let currentImageUrl="";
@@ -10,7 +11,36 @@ function configured(){return !window.SOMEPEACE_SUPABASE_URL.startsWith("YOUR_") 
 function msg(el,text,error=false){el.textContent=text;el.className="message "+(error?"error":"success");if(!text)el.className="message";}
 async function boot(){
  if(!configured()){msg(document.getElementById("loginMessage"),"Connect your Supabase project first by filling supabase-config.js.",true);return;}
- const {data:{session}}=await sb.auth.getSession(); setUI(session);
+ const {data:{session}}=await sb.auth.getSession();
+ if (!session || !session.user) {
+    window.location.href = "admin.html";
+    return;
+}
+
+if (session.user.id !== ADMIN_USER_ID) {
+    await sb.auth.signOut();
+    alert("Access denied. You are not authorized to access the SOMEPEACE admin panel.");
+    window.location.href = "admin.html";
+    return;
+}
+const { data, error } = await sb.auth.signInWithPassword({
+    email,
+    password
+});
+
+if (error) {
+    alert("Invalid email or password.");
+    return;
+}
+
+if (!data.user || data.user.id !== ADMIN_USER_ID) {
+    await sb.auth.signOut();
+    alert("Access denied. You are not authorized to access the SOMEPEACE admin panel.");
+    return;
+}
+
+// Only now show the admin dashboard
+  setUI(session);
  sb.auth.onAuthStateChange((_e,s)=>setUI(s));
 }
 function setUI(session){if(session){loginPanel.classList.add("hidden");dashboard.classList.remove("hidden");logoutBtn.classList.remove("hidden");loadList()}else{loginPanel.classList.remove("hidden");dashboard.classList.add("hidden");logoutBtn.classList.add("hidden")}}
@@ -40,7 +70,42 @@ form.addEventListener("submit",async e=>{
  try{
   const id=document.getElementById("productId").value,name=document.getElementById("name").value.trim(),category=document.getElementById("category").value,description=document.getElementById("description").value.trim(),badge=document.getElementById("badge").value.trim(),file=document.getElementById("image").files[0];
   let image_url=currentImageUrl;
-  if(file){const ext=file.name.split(".").pop().toLowerCase();const path=`${crypto.randomUUID()}.${ext}`;const up=await sb.storage.from("product-images").upload(path,file,{upsert:false,contentType:file.type});if(up.error)throw up.error;image_url=sb.storage.from("product-images").getPublicUrl(path).data.publicUrl}
+  if (file) {
+    const allowedTypes = ["image/jpeg", "image/png", "image/webp"];
+    const maxSize = 5 * 1024 * 1024; // 5 MB
+
+    if (!allowedTypes.includes(file.type)) {
+        throw new Error("Only JPG, PNG, and WebP images are allowed.");
+    }
+
+    if (file.size > maxSize) {
+        throw new Error("Image must be 5 MB or smaller.");
+    }
+
+    const extensionMap = {
+        "image/jpeg": "jpg",
+        "image/png": "png",
+        "image/webp": "webp"
+    };
+
+    const extension = extensionMap[file.type];
+    const path = `${crypto.randomUUID()}.${extension}`;
+
+    const up = await sb.storage
+        .from("product-images")
+        .upload(path, file, {
+            upsert: false,
+            contentType: file.type
+        });
+
+    if (up.error) throw up.error;
+
+    image_url = sb.storage
+        .from("product-images")
+        .getPublicUrl(path)
+        .data
+        .publicUrl;
+}
   if(!image_url)throw new Error("Please choose a fabric image.");
   const payload={name,category,description,badge,image_url};
   let result=id?await sb.from("fabrics").update(payload).eq("id",id):await sb.from("fabrics").insert(payload);
