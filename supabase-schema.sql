@@ -14,21 +14,31 @@ create table if not exists public.fabrics (
 
 alter table public.fabrics enable row level security;
 
+-- Only this Supabase Auth user is allowed to manage the catalogue.
+-- Must match ADMIN_USER_ID in admin.js.
+create or replace function public.is_somepeace_admin()
+returns boolean
+language sql
+stable
+as $$
+  select auth.uid() = '7d8f5687-0abd-4778-9bc3-3d642785938b'::uuid;
+$$;
+
 drop policy if exists "Public can view fabrics" on public.fabrics;
 create policy "Public can view fabrics" on public.fabrics
 for select using (true);
 
 drop policy if exists "Authenticated admins can insert fabrics" on public.fabrics;
-create policy "Authenticated admins can insert fabrics" on public.fabrics
-for insert to authenticated with check (true);
+create policy "Admin can insert fabrics" on public.fabrics
+for insert to authenticated with check (public.is_somepeace_admin());
 
 drop policy if exists "Authenticated admins can update fabrics" on public.fabrics;
-create policy "Authenticated admins can update fabrics" on public.fabrics
-for update to authenticated using (true) with check (true);
+create policy "Admin can update fabrics" on public.fabrics
+for update to authenticated using (public.is_somepeace_admin()) with check (public.is_somepeace_admin());
 
 drop policy if exists "Authenticated admins can delete fabrics" on public.fabrics;
-create policy "Authenticated admins can delete fabrics" on public.fabrics
-for delete to authenticated using (true);
+create policy "Admin can delete fabrics" on public.fabrics
+for delete to authenticated using (public.is_somepeace_admin());
 
 -- Public image bucket.
 insert into storage.buckets (id, name, public)
@@ -40,16 +50,16 @@ create policy "Anyone can view product images" on storage.objects
 for select using (bucket_id='product-images');
 
 drop policy if exists "Authenticated admins can upload product images" on storage.objects;
-create policy "Authenticated admins can upload product images" on storage.objects
-for insert to authenticated with check (bucket_id='product-images');
+create policy "Admin can upload product images" on storage.objects
+for insert to authenticated with check (bucket_id='product-images' and public.is_somepeace_admin());
 
 drop policy if exists "Authenticated admins can update product images" on storage.objects;
-create policy "Authenticated admins can update product images" on storage.objects
-for update to authenticated using (bucket_id='product-images') with check (bucket_id='product-images');
+create policy "Admin can update product images" on storage.objects
+for update to authenticated using (bucket_id='product-images' and public.is_somepeace_admin()) with check (bucket_id='product-images' and public.is_somepeace_admin());
 
 drop policy if exists "Authenticated admins can delete product images" on storage.objects;
-create policy "Authenticated admins can delete product images" on storage.objects
-for delete to authenticated using (bucket_id='product-images');
+create policy "Admin can delete product images" on storage.objects
+for delete to authenticated using (bucket_id='product-images' and public.is_somepeace_admin());
 
 -- Initial products use files already shipped with the Netlify site.
 insert into public.fabrics (name, category, description, badge, image_url, sort_order)

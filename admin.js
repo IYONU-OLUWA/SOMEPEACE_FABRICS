@@ -9,39 +9,20 @@ let currentImageUrl="";
 
 function configured(){return !window.SOMEPEACE_SUPABASE_URL.startsWith("YOUR_") && !window.SOMEPEACE_SUPABASE_ANON_KEY.startsWith("YOUR_")}
 function msg(el,text,error=false){el.textContent=text;el.className="message "+(error?"error":"success");if(!text)el.className="message";}
+async function checkAndSetUI(session){
+ if (session && session.user && session.user.id !== ADMIN_USER_ID) {
+    await sb.auth.signOut();
+    alert("Access denied. You are not authorized to access the SOMEPEACE admin panel.");
+    setUI(null);
+    return;
+ }
+ setUI(session);
+}
 async function boot(){
  if(!configured()){msg(document.getElementById("loginMessage"),"Connect your Supabase project first by filling supabase-config.js.",true);return;}
  const {data:{session}}=await sb.auth.getSession();
- if (!session || !session.user) {
-    window.location.href = "admin.html";
-    return;
-}
-
-if (session.user.id !== ADMIN_USER_ID) {
-    await sb.auth.signOut();
-    alert("Access denied. You are not authorized to access the SOMEPEACE admin panel.");
-    window.location.href = "admin.html";
-    return;
-}
-const { data, error } = await sb.auth.signInWithPassword({
-    email,
-    password
-});
-
-if (error) {
-    alert("Invalid email or password.");
-    return;
-}
-
-if (!data.user || data.user.id !== ADMIN_USER_ID) {
-    await sb.auth.signOut();
-    alert("Access denied. You are not authorized to access the SOMEPEACE admin panel.");
-    return;
-}
-
-// Only now show the admin dashboard
-  setUI(session);
- sb.auth.onAuthStateChange((_e,s)=>setUI(s));
+ await checkAndSetUI(session);
+ sb.auth.onAuthStateChange((_e,s)=>checkAndSetUI(s));
 }
 function setUI(session){if(session){loginPanel.classList.add("hidden");dashboard.classList.remove("hidden");logoutBtn.classList.remove("hidden");loadList()}else{loginPanel.classList.remove("hidden");dashboard.classList.add("hidden");logoutBtn.classList.add("hidden")}}
 document.getElementById("loginForm").addEventListener("submit",async e=>{e.preventDefault();const email=document.getElementById("email").value,password=document.getElementById("password").value;const {error}=await sb.auth.signInWithPassword({email,password});msg(document.getElementById("loginMessage"),error?error.message:"")});
