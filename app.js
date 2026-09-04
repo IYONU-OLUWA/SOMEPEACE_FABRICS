@@ -7,7 +7,7 @@ const fallbackProducts = [
  {id:"local-1",name:"Rossberry Platinum",category:"Ankara",description:"Bold circular pattern with rich red, black and white tones.",badge:"FEATURED",image_url:"assets/somepeace-ankara-rossberry.jpg"},
  {id:"local-2",name:"Textured Collection",category:"Fabrics",description:"Soft-looking textured fabrics available in beautiful colours.",badge:"COLOURS",image_url:"assets/somepeace-fabric-1.jpg"},
  {id:"local-3",name:"Statement Prints",category:"Embroidered",description:"Decorative patterns made to stand out at special occasions.",badge:"DETAILS",image_url:"assets/somepeace-fabric-2.webp"},
- {id:"local-4",name:"More Fabrics",category:"Fabrics",description:"More product photos will be added as the collection expands.",badge:"COMING SOON",image_url:"assets/somepeace-promos.jpg"}
+ {id:"local-4",name:"More Fabrics",category:"Fabrics",description:"More product photos will be added as the collection expands.",badge:"COMING SOON",image_url:"assets/somepeace-promos.jpg?v=2"}
 ];
 
 const grid = document.getElementById("products-grid");
