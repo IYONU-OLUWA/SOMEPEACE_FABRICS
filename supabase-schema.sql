@@ -75,7 +75,7 @@ select 'Statement Prints','Embroidered','Decorative patterns made to stand out a
 where not exists (select 1 from public.fabrics where name='Statement Prints');
 
 insert into public.fabrics (name, category, description, badge, image_url, sort_order)
-select 'More Fabrics','Fabrics','More product photos will be added as the collection expands.','COMING SOON','assets/somepeace-promo.jpg',40
+select 'More Fabrics','Fabrics','More product photos will be added as the collection expands.','COMING SOON','assets/somepeace-promos.jpg',40
 where not exists (select 1 from public.fabrics where name='More Fabrics');
 
 -- IMPORTANT:
