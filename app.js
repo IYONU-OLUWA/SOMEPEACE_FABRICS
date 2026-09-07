@@ -11,7 +11,7 @@ const fallbackProducts = [
 ];
 
 const grid = document.getElementById("products-grid");
-const wa = n => `https://wa.me/2347041506883?text=${encodeURIComponent("Hello SOMEPEACE FABRICS, I'm interested in " + n + ". Please send me the price and availability.")}`;
+const wa = n => `https://wa.me/2349159186865?text=${encodeURIComponent("Hello SOMEPEACE FABRICS, I'm interested in " + n + ". Please send me the price and availability.")}`;
 
 function card(p, i){
  return `<article class="card">
